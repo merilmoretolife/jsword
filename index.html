@@ -8,44 +8,48 @@
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
-  <h1>Export to Word Test(docx.js)</h1>
+  <h1>Export to Word 2(docx.js)</h1>
   <button onclick="exportDocx()">Export DOCX</button>
 
   <script>
     async function exportDocx() {
-      const { Document, Packer, Paragraph, TextRun, Header, Footer, PageBreak, AlignmentType } = docx;
+      const {
+        Document,
+        Packer,
+        Paragraph,
+        TextRun,
+        Header,
+        Footer,
+        AlignmentType,
+        PageBreak,
+      } = docx;
 
-      const line = new Paragraph({
-        children: [new TextRun(" ")],
-        border: {
-          bottom: {
-            color: "auto",
-            space: 1,
-            value: "single",
-            size: 6,
-          },
-        },
+      const divider = new Paragraph({
+        children: [new TextRun("----------------")],
+        alignment: AlignmentType.CENTER,
       });
 
       const header = new Header({
         children: [
           new Paragraph({ text: "Test Export to Word", alignment: AlignmentType.CENTER }),
-          line
-        ]
+          divider,
+        ],
       });
 
       const footer = new Footer({
         children: [
-          line,
+          divider,
           new Paragraph({
             children: [
               new TextRun("Page "),
-              new TextRun({ fieldType: "PAGE" })
+              new TextRun({ fieldType: "PAGE", children: [""] }),
             ],
             alignment: AlignmentType.CENTER,
           }),
-        ]
+        ],
       });
+
+      const filler = (text) => new Array(40).fill(new Paragraph(text)).flat();
 
       const doc = new Document({
         sections: [
@@ -53,16 +57,13 @@
             headers: { default: header },
             footers: { default: footer },
             children: [
-              new Paragraph("This is page 1 content."),
-              new Paragraph("More text on page 1."),
+              ...filler("This is page 1 content."),
               new Paragraph({ children: [new TextRun("")], pageBreakAfter: true }),
-              new Paragraph("This is page 2 content."),
-              new Paragraph("More text on page 2."),
+              ...filler("This is page 2 content."),
               new Paragraph({ children: [new TextRun("")], pageBreakAfter: true }),
-              new Paragraph("This is page 3 content."),
-              new Paragraph("More text on page 3.")
+              ...filler("This is page 3 content."),
             ],
-          }
+          },
         ],
       });
 
