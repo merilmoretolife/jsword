@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
-  <h1>Export to Word (docx.js)</h1>
+  <h1>Export to Word Test(docx.js)</h1>
   <button onclick="exportDocx()">Export DOCX</button>
 
   <script>
@@ -39,8 +39,8 @@
           line,
           new Paragraph({
             children: [
-              new TextRun({ text: "Page ", }),
-              new TextRun({ text: "\u0003", field: true }),
+              new TextRun("Page "),
+              new TextRun({ fieldType: "PAGE" })
             ],
             alignment: AlignmentType.CENTER,
           }),
@@ -55,10 +55,10 @@
             children: [
               new Paragraph("This is page 1 content."),
               new Paragraph("More text on page 1."),
-              new Paragraph({ children: [], pageBreakAfter: true }),
+              new Paragraph({ children: [new TextRun("")], pageBreakAfter: true }),
               new Paragraph("This is page 2 content."),
               new Paragraph("More text on page 2."),
-              new Paragraph({ children: [], pageBreakAfter: true }),
+              new Paragraph({ children: [new TextRun("")], pageBreakAfter: true }),
               new Paragraph("This is page 3 content."),
               new Paragraph("More text on page 3.")
             ],
