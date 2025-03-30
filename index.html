@@ -1,67 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>docx.js Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Export to Word</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    .export-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h2>docx UMD Test</h2>
-  <button onclick="generateDoc()">Download Word</button>
+  <h1>My Test Page</h1>
+  <div id="content">
+    <p>This is some test content to be exported to a Word document.</p>
+    <ul>
+      <li>Feature 1</li>
+      <li>Feature 2</li>
+      <li>Feature 3</li>
+    </ul>
+  </div>
 
-  <!-- ✅ UMD build -->
-  <script src="https://cdn.jsdelivr.net/npm/docx@8.1.2/build/index.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <button class="export-btn" onclick="exportToWord()">Export to Word</button>
 
   <script>
-    async function generateDoc() {
-      const {
-        Document,
-        Packer,
-        Paragraph,
-        HeadingLevel,
-        AlignmentType
-      } = window.docx;
+    function exportToWord() {
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                     "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+                     "xmlns='http://www.w3.org/TR/REC-html40'>" +
+                     "<head><meta charset='utf-8'><title>Export</title></head><body>";
+      const footer = "</body></html>";
+      const content = document.getElementById("content").innerHTML;
+      const sourceHTML = header + content + footer;
 
-      const doc = new Document({
-        sections: [{
-          children: [
-            new Paragraph({
-              text: "Design Input – Sample Device",
-              heading: HeadingLevel.TITLE,
-              alignment: AlignmentType.CENTER
-            }),
-            new Paragraph({
-              text: "Document Number: DI/ABC/001 Rev. 00",
-              alignment: AlignmentType.RIGHT
-            }),
-            new Paragraph({
-              text: "Date: " + new Date().toLocaleDateString(),
-              alignment: AlignmentType.RIGHT
-            }),
-            new Paragraph({
-              text: "1. Functional and Performance Requirements",
-              heading: HeadingLevel.HEADING_2
-            }),
-            new Paragraph({
-              text: "Device must function within defined operating parameters."
-            }),
-            new Paragraph({
-              text: "2. Biological Safety Requirements",
-              heading: HeadingLevel.HEADING_2
-            }),
-            new Paragraph({
-              text: "Compliant with ISO 10993 and non-toxic."
-            }),
-            new Paragraph({
-              text: "Meril Healthcare Pvt. Ltd. — Confidential",
-              alignment: AlignmentType.CENTER
-            })
-          ]
-        }]
+      const blob = new Blob(['\uFEFF', sourceHTML], {
+        type: 'application/msword'
       });
 
-      const blob = await Packer.toBlob(doc);
-      saveAs(blob, "Design_Input.docx");
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'export.doc';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   </script>
 </body>
