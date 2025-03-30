@@ -1,29 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>docx.js Test Export</title>
+  <title>docx.js Test</title>
 </head>
 <body>
-  <h2>docx.js Test Page</h2>
-  <button onclick="exportWord()">Download .docx</button>
+  <h2>docx UMD Test</h2>
+  <button onclick="generateDoc()">Download Word</button>
 
-  <!-- FileSaver (for download) -->
+  <!-- ✅ UMD build -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.1.2/build/index.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-  <!-- ✅ Skypack docx import -->
-  <script type="module">
-    import * as docx from "https://cdn.skypack.dev/docx@8.1.2";
-    window.docx = docx;
-  </script>
-
-  <!-- Your Export Function -->
   <script>
-    async function exportWord() {
-      const docx = window.docx;
-      if (!docx) return alert("docx library not loaded");
-
-      const { Document, Packer, Paragraph, HeadingLevel, AlignmentType } = docx;
+    async function generateDoc() {
+      const {
+        Document,
+        Packer,
+        Paragraph,
+        HeadingLevel,
+        AlignmentType
+      } = window.docx;
 
       const doc = new Document({
         sections: [{
@@ -31,42 +28,40 @@
             new Paragraph({
               text: "Design Input – Sample Device",
               heading: HeadingLevel.TITLE,
-              alignment: AlignmentType.CENTER,
+              alignment: AlignmentType.CENTER
             }),
             new Paragraph({
               text: "Document Number: DI/ABC/001 Rev. 00",
-              alignment: AlignmentType.RIGHT,
+              alignment: AlignmentType.RIGHT
             }),
             new Paragraph({
               text: "Date: " + new Date().toLocaleDateString(),
-              alignment: AlignmentType.RIGHT,
+              alignment: AlignmentType.RIGHT
             }),
-            new Paragraph({ text: "", spacing: { after: 200 } }),
             new Paragraph({
               text: "1. Functional and Performance Requirements",
               heading: HeadingLevel.HEADING_2
             }),
             new Paragraph({
-              text: "The device shall perform reliably and consistently across its intended use scenarios.",
+              text: "Device must function within defined operating parameters."
             }),
             new Paragraph({
               text: "2. Biological Safety Requirements",
               heading: HeadingLevel.HEADING_2
             }),
             new Paragraph({
-              text: "The device must comply with ISO 10993 and show no cytotoxicity, irritation, or sensitization.",
+              text: "Compliant with ISO 10993 and non-toxic."
             }),
-            new Paragraph({ text: "", spacing: { before: 400 } }),
             new Paragraph({
-              text: "Meril Healthcare Pvt. Ltd. – Confidential Document",
-              alignment: AlignmentType.CENTER,
+              text: "Meril Healthcare Pvt. Ltd. — Confidential",
+              alignment: AlignmentType.CENTER
             })
           ]
         }]
       });
 
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, "Design_Input_Sample.docx");
+      saveAs(blob, "Design_Input.docx");
     }
   </script>
 </body>
