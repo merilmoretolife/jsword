@@ -17,17 +17,49 @@
       border-radius: 4px;
       cursor: pointer;
     }
+    .page {
+      page-break-after: always;
+    }
+    .header, .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .line {
+      border-top: 1px solid #ccc;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
   <h1>My Test Page</h1>
   <div id="content">
-    <p>This is some test content to be exported to a Word document.</p>
-    <ul>
-      <li>Feature 1</li>
-      <li>Feature 2</li>
-      <li>Feature 3</li>
-    </ul>
+    <div class="page">
+      <div class="header">Test Export to Word</div>
+      <div class="line"></div>
+      <p>This is page 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.</p>
+      <p>Vestibulum auctor dapibus neque. Nunc dignissim risus id metus.</p>
+      <div class="line"></div>
+      <div class="footer">Page 1</div>
+    </div>
+
+    <div class="page">
+      <div class="header">Test Export to Word</div>
+      <div class="line"></div>
+      <p>This is page 2. Maecenas fermentum consequat mi. Donec fermentum.</p>
+      <p>Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec.</p>
+      <div class="line"></div>
+      <div class="footer">Page 2</div>
+    </div>
+
+    <div>
+      <div class="header">Test Export to Word</div>
+      <div class="line"></div>
+      <p>This is page 3. Fusce convallis, mauris imperdiet gravida bibendum, nisl dui.</p>
+      <p>Suspendisse potenti. Ut dapibus, arcu eu fermentum elementum.</p>
+      <div class="line"></div>
+      <div class="footer">Page 3</div>
+    </div>
   </div>
 
   <button class="export-btn" onclick="exportToWord()">Export to Word</button>
