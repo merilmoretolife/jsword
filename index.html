@@ -1,90 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test Export to Word</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-    }
-    .export-btn {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .page {
-      page-break-after: always;
-    }
-    .header, .footer {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .line {
-      border-top: 1px solid #ccc;
-      margin: 10px 0;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docx Export with docx.js</title>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.4.0/build/index.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
-  <h1>My Test Page</h1>
-  <div id="content">
-    <div class="page">
-      <div class="header">Test Export to Word</div>
-      <div class="line"></div>
-      <p>This is page 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.</p>
-      <p>Vestibulum auctor dapibus neque. Nunc dignissim risus id metus.</p>
-      <div class="line"></div>
-      <div class="footer">Page 1</div>
-    </div>
-
-    <div class="page">
-      <div class="header">Test Export to Word</div>
-      <div class="line"></div>
-      <p>This is page 2. Maecenas fermentum consequat mi. Donec fermentum.</p>
-      <p>Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec.</p>
-      <div class="line"></div>
-      <div class="footer">Page 2</div>
-    </div>
-
-    <div>
-      <div class="header">Test Export to Word</div>
-      <div class="line"></div>
-      <p>This is page 3. Fusce convallis, mauris imperdiet gravida bibendum, nisl dui.</p>
-      <p>Suspendisse potenti. Ut dapibus, arcu eu fermentum elementum.</p>
-      <div class="line"></div>
-      <div class="footer">Page 3</div>
-    </div>
-  </div>
-
-  <button class="export-btn" onclick="exportToWord()">Export to Word</button>
+  <h1>Export to Word (docx.js)</h1>
+  <button onclick="exportDocx()">Export DOCX</button>
 
   <script>
-    function exportToWord() {
-      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
-                     "xmlns:w='urn:schemas-microsoft-com:office:word' " +
-                     "xmlns='http://www.w3.org/TR/REC-html40'>" +
-                     "<head><meta charset='utf-8'><title>Export</title></head><body>";
-      const footer = "</body></html>";
-      const content = document.getElementById("content").innerHTML;
-      const sourceHTML = header + content + footer;
+    async function exportDocx() {
+      const { Document, Packer, Paragraph, TextRun, Header, Footer, PageBreak, AlignmentType } = docx;
 
-      const blob = new Blob(['\uFEFF', sourceHTML], {
-        type: 'application/msword'
+      const line = new Paragraph({
+        children: [new TextRun(" ")],
+        border: {
+          bottom: {
+            color: "auto",
+            space: 1,
+            value: "single",
+            size: 6,
+          },
+        },
       });
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'export.doc';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const header = new Header({
+        children: [
+          new Paragraph({ text: "Test Export to Word", alignment: AlignmentType.CENTER }),
+          line
+        ]
+      });
+
+      const footer = new Footer({
+        children: [
+          line,
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Page ", }),
+              new TextRun({ text: "\u0003", field: true }),
+            ],
+            alignment: AlignmentType.CENTER,
+          }),
+        ]
+      });
+
+      const doc = new Document({
+        sections: [
+          {
+            headers: { default: header },
+            footers: { default: footer },
+            children: [
+              new Paragraph("This is page 1 content."),
+              new Paragraph("More text on page 1."),
+              new Paragraph({ children: [], pageBreakAfter: true }),
+              new Paragraph("This is page 2 content."),
+              new Paragraph("More text on page 2."),
+              new Paragraph({ children: [], pageBreakAfter: true }),
+              new Paragraph("This is page 3 content."),
+              new Paragraph("More text on page 3.")
+            ],
+          }
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, "exported.docx");
     }
   </script>
 </body>
