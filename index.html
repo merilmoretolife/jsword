@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>docx.js Test Export</title>
+</head>
+<body>
+  <h2>docx.js Test Page</h2>
+  <button onclick="exportWord()">Download .docx</button>
+
+  <!-- ✅ UMD build for docx.js -->
+  <script src="https://unpkg.com/docx@8.1.2/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script>
+    async function exportWord() {
+      if (!window.docx) {
+        alert("docx library not loaded");
+        return;
+      }
+
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "Design Input – Sample Device",
+              heading: HeadingLevel.TITLE,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: "Document Number: DI/ABC/001 Rev. 00",
+              alignment: AlignmentType.RIGHT,
+            }),
+            new Paragraph({
+              text: "Date: " + new Date().toLocaleDateString(),
+              alignment: AlignmentType.RIGHT,
+            }),
+            new Paragraph({ text: "", spacing: { after: 200 } }),
+            new Paragraph({
+              text: "1. Functional and Performance Requirements",
+              heading: HeadingLevel.HEADING_2
+            }),
+            new Paragraph({
+              text: "The device shall perform reliably and consistently across its intended use scenarios.",
+            }),
+            new Paragraph({
+              text: "2. Biological Safety Requirements",
+              heading: HeadingLevel.HEADING_2
+            }),
+            new Paragraph({
+              text: "The device must comply with ISO 10993 and show no cytotoxicity, irritation, or sensitization.",
+            }),
+            new Paragraph({ text: "", spacing: { before: 400 } }),
+            new Paragraph({
+              text: "Meril Healthcare Pvt. Ltd. – Confidential Document",
+              alignment: AlignmentType.CENTER,
+            })
+          ]
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, "Design_Input_Sample.docx");
+    }
+  </script>
+</body>
+</html>
