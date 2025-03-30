@@ -8,22 +8,25 @@
   <h2>docx.js Test Page</h2>
   <button onclick="exportWord()">Download .docx</button>
 
-  <!-- ✅ UMD build for docx.js -->
-  <script src="https://unpkg.com/docx@8.1.2/build/index.umd.js"></script>
+  <!-- FileSaver (for download) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
+  <!-- ✅ Skypack docx import -->
+  <script type="module">
+    import * as docx from "https://cdn.skypack.dev/docx@8.1.2";
+    window.docx = docx;
+  </script>
+
+  <!-- Your Export Function -->
   <script>
     async function exportWord() {
-      if (!window.docx) {
-        alert("docx library not loaded");
-        return;
-      }
+      const docx = window.docx;
+      if (!docx) return alert("docx library not loaded");
 
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+      const { Document, Packer, Paragraph, HeadingLevel, AlignmentType } = docx;
 
       const doc = new Document({
         sections: [{
-          properties: {},
           children: [
             new Paragraph({
               text: "Design Input – Sample Device",
