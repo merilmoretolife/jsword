@@ -57,60 +57,72 @@
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse fermentum, nisl ut feugiat luctus...</p>
     <p>Final paragraph of the 2-page demo content.</p>
   </div>
+<!-- Load docx module and attach to window -->
+<script type="module">
+  import {
+    Document,
+    Packer,
+    Paragraph,
+    TextRun
+  } from "https://unpkg.com/docx@8.3.0/build/index.js";
 
-  <script>
-    async function exportToPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'pt', 'a4');
-      const content = document.getElementById("content");
+  window.docx = { Document, Packer, Paragraph, TextRun };
+</script>
 
-      const canvas = await html2canvas(content, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
+<!-- Normal script block for button functionality -->
+<script>
+  async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'pt', 'a4');
+    const content = document.getElementById("content");
 
-      const pdfWidth = doc.internal.pageSize.getWidth();
-      const pdfHeight = doc.internal.pageSize.getHeight();
+    const canvas = await html2canvas(content, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
 
-      const imgProps = doc.getImageProperties(imgData);
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = doc.internal.pageSize.getHeight();
 
-      let position = 0;
-      let heightLeft = imgHeight;
+    const imgProps = doc.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      while (heightLeft > 0) {
-        doc.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdfHeight;
-        position -= pdfHeight;
+    let position = 0;
+    let heightLeft = imgHeight;
 
-        if (heightLeft > 0) {
-          doc.addPage();
-        }
+    while (heightLeft > 0) {
+      doc.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      position -= pdfHeight;
+
+      if (heightLeft > 0) {
+        doc.addPage();
       }
-
-      doc.save('document.pdf');
     }
 
-    async function exportToWord() {
-      const { Document, Packer, Paragraph, TextRun } = window.docx;
-      const content = document.getElementById("content").innerText;
+    doc.save('document.pdf');
+  }
 
-      const paragraphs = content.split('\n').map(line =>
-        new Paragraph({
-          children: [new TextRun({ text: line.trim(), font: "Arial", size: 24 })],
-        })
-      );
+  async function exportToWord() {
+    const { Document, Packer, Paragraph, TextRun } = window.docx;
+    const content = document.getElementById("content").innerText;
 
-      const doc = new Document({
-        sections: [{ children: paragraphs }]
-      });
+    const paragraphs = content.split('\n').map(line =>
+      new Paragraph({
+        children: [new TextRun({ text: line.trim(), font: "Arial", size: 24 })],
+      })
+    );
 
-      const blob = await Packer.toBlob(doc);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "document.docx";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  </script>
+    const doc = new Document({
+      sections: [{ children: paragraphs }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "document.docx";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
 </body>
 </html>
