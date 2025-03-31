@@ -2,80 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>2-Page Document Export</title>
+  <title>2-Page Export Example</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://unpkg.com/docx@8.3.0/build/index.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
       background: #111;
       color: #eee;
-      padding: 40px;
-    }
-
-    .document {
-      background: #fff;
-      color: #000;
-      padding: 40px;
-      width: 800px;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    }
-
-    h1, h2 {
-      color: #004080;
-    }
-
-    .btns {
+      font-family: Arial, sans-serif;
+      padding: 20px;
       text-align: center;
-      margin-bottom: 30px;
     }
 
     button {
       padding: 10px 20px;
-      margin: 5px;
-      background: #004080;
-      color: white;
+      margin: 10px;
+      font-size: 16px;
       border: none;
       border-radius: 5px;
+      background-color: #0066cc;
+      color: white;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #0066cc;
+    .document {
+      background: white;
+      color: black;
+      padding: 40px;
+      width: 800px;
+      margin: 20px auto;
+      text-align: left;
     }
   </style>
 </head>
 <body>
 
-  <div class="btns">
-    <button onclick="exportToPDF()">Export to PDF</button>
-    <button onclick="exportToWord()">Export to Word</button>
-  </div>
+  <h1>Export to PDF / Word Example</h1>
+
+  <button onclick="exportToPDF()">Export to PDF</button>
+  <button onclick="exportToWord()">Export to Word</button>
 
   <div class="document" id="content">
-    <h1>Medical Device Design Input Document</h1>
+    <h1>Device Design Input Report</h1>
     <h2>Page 1</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor,
-      dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas
-      ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie,
-      enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa,
-      scelerisque vitae, consequat in, pretium a, enim.</p>
-
-    <p>Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue.
-      Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue
-      blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
-      Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum.</p>
-
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor...</p>
+    <p>More content here. Enough to fill up 2 A4 pages if repeated...</p>
+    <p>Repeat this paragraph multiple times for demo purpose.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in nisi et augue ultricies...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in nisi et augue ultricies...</p>
     <h2>Page 2</h2>
-    <p>Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in,
-      diam. Sed arcu. Cras consequat. Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae,
-      eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor,
-      facilisis luctus, metus.</p>
-
-    <p>Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique
-      cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi. Pellentesque fermentum dolor.
-      Aliquam quam lectus, facilisis auctor, ultrices ut, elementum vulputate, nunc.</p>
+    <p>Second page starts here. Continue writing detailed text...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse fermentum, nisl ut feugiat luctus...</p>
+    <p>Final paragraph of the 2-page demo content.</p>
   </div>
 
   <script>
@@ -84,35 +64,43 @@
       const doc = new jsPDF('p', 'pt', 'a4');
       const content = document.getElementById("content");
 
-      await doc.html(content, {
-        callback: function (doc) {
-          doc.save("document.pdf");
-        },
-        x: 20,
-        y: 20,
-        autoPaging: true,
-        width: 560,
-        windowWidth: 800,
-      });
+      const canvas = await html2canvas(content, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = doc.internal.pageSize.getHeight();
+
+      const imgProps = doc.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      let position = 0;
+      let heightLeft = imgHeight;
+
+      while (heightLeft > 0) {
+        doc.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+        position -= pdfHeight;
+
+        if (heightLeft > 0) {
+          doc.addPage();
+        }
+      }
+
+      doc.save('document.pdf');
     }
 
     async function exportToWord() {
-      const { Document, Packer, Paragraph, TextRun } = docx;
-      const content = document.getElementById("content");
+      const { Document, Packer, Paragraph, TextRun } = window.docx;
+      const content = document.getElementById("content").innerText;
 
-      const text = content.innerText.split('\n').filter(line => line.trim() !== '');
-      const paragraphs = text.map(line =>
+      const paragraphs = content.split('\n').map(line =>
         new Paragraph({
-          children: [new TextRun({ text: line, font: "Arial", size: 24 })],
-          spacing: { after: 200 }
+          children: [new TextRun({ text: line.trim(), font: "Arial", size: 24 })],
         })
       );
 
       const doc = new Document({
-        sections: [{
-          properties: {},
-          children: paragraphs
-        }]
+        sections: [{ children: paragraphs }]
       });
 
       const blob = await Packer.toBlob(doc);
